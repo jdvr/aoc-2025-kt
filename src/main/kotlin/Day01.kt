@@ -57,11 +57,16 @@ fun main() {
                 right
             }
             val steps = it.slice(1 until it.length).toInt()
-
-            repeat((0 until steps).count()) {
-                pos = adjustment(rotation(pos, 1))
-                zeros += if (pos == 0) 1 else 0
+            val stepsToZero = when  {
+                pos == 0 -> 100
+                rotation == left -> pos
+                else -> 100 - pos
             }
+            if (steps >= stepsToZero) {
+                zeros++
+                zeros += (steps - stepsToZero) / 100
+            }
+            pos = adjustment(rotation(pos, steps))
 
         }
         println("[part 2] The password is $zeros")
