@@ -1,27 +1,18 @@
 package dev.juanvega
 
-import kotlin.math.abs
-
 fun main() {
     val dayId = "Day01"
     val DEBUG = false
     val debug = consoleDebug(DEBUG)
     val lines = readInput(dayId)
 
-    val right: (Int, Int) -> Int = { pos, steps ->
-        debug("Rotating to right $pos by $steps")
-        pos + steps
-    }
-    val left: (Int, Int) -> Int = { pos, steps ->
-        debug("Rotating to left $pos by $steps")
-        pos - steps
-    }
-
     val adjustment: (Int) -> Int = { pos ->
         val res = ((pos % 100) + 100) % 100
         debug("Adjusting $pos to $res")
         res
     }
+    infix fun Int.moveLeft(steps: Int) = adjustment(this - steps)
+    infix fun Int.moveRight(steps: Int) = adjustment(this + steps)
 
 
     fun part1() {
@@ -30,16 +21,15 @@ fun main() {
 
         lines.forEach {
             debug("The dial is $pos")
-            val rotation = if ("L" in it) {
-                left
-            } else {
-                right
-            }
+            val isLeftRotation = "L" in it
             val steps = it.slice(1 until it.length).toInt()
 
-            val current = adjustment(rotation(pos, steps))
-            pos = current
-            zeros += if (current == 0) 1 else 0
+            pos = if (isLeftRotation) {
+                pos moveLeft steps
+            } else {
+                pos moveRight steps
+            }
+            zeros += if (pos == 0) 1 else 0
         }
         println("[part 1] The password is $zeros")
 
@@ -51,23 +41,22 @@ fun main() {
 
         lines.forEach {
             debug("The dial is $pos")
-            val rotation = if ("L" in it) {
-                left
-            } else {
-                right
-            }
             val steps = it.slice(1 until it.length).toInt()
+            val isLeftRotation = "L" in it
             val stepsToZero = when  {
                 pos == 0 -> 100
-                rotation == left -> pos
+                isLeftRotation -> pos
                 else -> 100 - pos
             }
             if (steps >= stepsToZero) {
                 zeros++
                 zeros += (steps - stepsToZero) / 100
             }
-            pos = adjustment(rotation(pos, steps))
-
+            pos = if (isLeftRotation) {
+                pos moveLeft steps
+            } else {
+                pos moveRight steps
+            }
         }
         println("[part 2] The password is $zeros")
 
