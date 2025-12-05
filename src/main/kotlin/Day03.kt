@@ -4,8 +4,6 @@ import kotlin.math.max
 
 fun main() {
     val dayId = "Day03"
-    val DEBUG = true
-    val debug = consoleDebug(DEBUG)
 
     fun part1(banks: List<String>): Long =
         banks.sumOf { bank ->
