@@ -1,10 +1,7 @@
 package dev.juanvega
 
-import kotlin.math.max
-
 fun main() {
     val dayId = "Day04"
-    val debug = consoleDebug(true)
 
     fun buildGrid(lines: List<String>): Array<CharArray> =
         lines.map { line ->
@@ -33,27 +30,41 @@ fun main() {
         }.toSet()
     }
 
-
-    fun part1(lines: List<String>): Long {
-        var availableRolls = 0L
-        val grid = buildGrid(lines)
+    fun removableRolls(grid: Array<CharArray>): Set<Pair<Int, Int>> {
+        val toBeRemoved = mutableSetOf<Pair<Int, Int>>()
         for (i in grid.indices) {
             for (j in grid[i].indices) {
                 if (grid[i][j] == '@') {
-                    val nearRolls = getEightAdjacent(grid, (i to j)).filter { pos ->
-                        val (neighbourRow, neighbourCol) = pos
+                    val nearRolls = getEightAdjacent(grid, (i to j)).count { (neighbourRow, neighbourCol) ->
                         grid[neighbourRow][neighbourCol] == '@'
                     }
-                    debug("Found $nearRolls for $i,$j")
-                    availableRolls += if (nearRolls.size < 4) 1 else 0
+                    if (nearRolls < 4) {
+                        toBeRemoved.add(i to j)
+                    }
                 }
             }
         }
-        return availableRolls
+        return toBeRemoved
     }
 
 
-    fun part2(lines: List<String>): Long = -2
+    fun part1(lines: List<String>): Long =
+        removableRolls(buildGrid(lines)).size.toLong()
+
+
+    fun part2(lines: List<String>): Long {
+        val grid = buildGrid(lines)
+        var totalRemoved = 0
+        var toBeRemoved = removableRolls(grid)
+        while (toBeRemoved.isNotEmpty()) {
+            toBeRemoved.forEach { (row, col) ->
+                grid[row][col] = '.'
+                totalRemoved++
+            }
+            toBeRemoved = removableRolls(grid)
+        }
+        return totalRemoved.toLong()
+    }
 
     val testPart1 = part1(readInput(dayId, isTest = true))
     check(testPart1 == 13L) {
@@ -66,16 +77,16 @@ fun main() {
         "Part 1 failed with $part1"
     }
 
-//    val testPart2 = part2(readInput(dayId, isTest = true))
-//    check(testPart2 == 3121910778619L) {
-//        "Test Part 2 failed with $testPart2"
-//    }
-//
-//    val part2 = part2(readInput(dayId))
-//    println("Part 2: $part2")
-//    check(part2 == 16946L) {
-//        "Part 2 failed with $part2"
-//    }
+    val testPart2 = part2(readInput(dayId, isTest = true))
+    check(testPart2 == 43L) {
+        "Test Part 2 failed with $testPart2"
+    }
+
+    val part2 = part2(readInput(dayId))
+    println("Part 2: $part2")
+    check(part2 == 9401L) {
+        "Part 2 failed with $part2"
+    }
 
 
 }
